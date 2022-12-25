@@ -139,3 +139,9 @@ print(vifdf)
 # 4      1.878
 
 #모든 변수가 10을 넘기지 않음, 다중공선성이 발생하지 않음(다중공선성 우려 없음)
+
+#모델저장
+import pickle
+pickle.dump(lm, open('gol_model.sav', mode='wb'))
+del lm
+
