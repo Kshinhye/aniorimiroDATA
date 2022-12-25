@@ -42,12 +42,75 @@ columns=['기준_분기_코드','상권_구분_코드_명','상권_코드_명','
          '남성_매출_금액','여성_매출_금액','남성_매출_건수','여성_매출_건수','점포수'
          ]
 
-csvfile=pd.read_csv("서울시_우리마을가게_상권분석서비스(신_상권_추정매출)_2021년.csv", usecols=columns, encoding='euc-kr')
-print(csvfile.info())
+csv1=pd.read_csv("서울시_우리마을가게_상권분석서비스(신_상권_추정매출)_2019년.csv",usecols=columns, encoding='euc-kr')
+csv2=pd.read_csv("서울시_우리마을가게_상권분석서비스(신_상권_추정매출)_2020년.csv",usecols=columns, encoding='euc-kr')
+csv3=pd.read_csv("서울시_우리마을가게_상권분석서비스(신_상권_추정매출)_2021년.csv",usecols=columns, encoding='euc-kr')
+csvfile=pd.concat([csv1,csv2,csv3])
+### 상권_구분_코드 ###
 
 csvfile=csvfile.loc[csvfile['상권_코드_명'].isin(yongsan)]
-print(csvfile.shape) #140830 -> 4683,7 
+print(csvfile.shape) #433551, 80 -> 14504, 53 
+# print(csvfile.info())
+csvfile = csvfile.replace(0, np.NaN)
+print(csvfile.info())
 
+csvfile['주중_매출_금액']=csvfile['주중_매출_금액'].fillna(csvfile['주중_매출_금액'].mean())
+csvfile['주말_매출_금액']=csvfile['주말_매출_금액'].fillna(csvfile['주말_매출_금액'].mean())
+csvfile['월요일_매출_금액']=csvfile['월요일_매출_금액'].fillna(csvfile['월요일_매출_금액'].mean())
+csvfile['화요일_매출_금액']=csvfile['화요일_매출_금액'].fillna(csvfile['화요일_매출_금액'].mean())
+csvfile['수요일_매출_금액']=csvfile['수요일_매출_금액'].fillna(csvfile['수요일_매출_금액'].mean())
+csvfile['목요일_매출_금액']=csvfile['목요일_매출_금액'].fillna(csvfile['목요일_매출_금액'].mean())
+csvfile['금요일_매출_금액']=csvfile['금요일_매출_금액'].fillna(csvfile['금요일_매출_금액'].mean())
+csvfile['토요일_매출_금액']=csvfile['토요일_매출_금액'].fillna(csvfile['토요일_매출_금액'].mean())
+csvfile['일요일_매출_금액']=csvfile['일요일_매출_금액'].fillna(csvfile['일요일_매출_금액'].mean())
+csvfile['시간대_00~06_매출_금액']=csvfile['시간대_00~06_매출_금액'].fillna(csvfile['시간대_00~06_매출_금액'].mean())
+csvfile['시간대_06~11_매출_금액']=csvfile['시간대_06~11_매출_금액'].fillna(csvfile['시간대_06~11_매출_금액'].mean())
+csvfile['시간대_11~14_매출_금액']=csvfile['시간대_11~14_매출_금액'].fillna(csvfile['시간대_11~14_매출_금액'].mean())
+csvfile['시간대_14~17_매출_금액']=csvfile['시간대_14~17_매출_금액'].fillna(csvfile['시간대_14~17_매출_금액'].mean())
+csvfile['시간대_17~21_매출_금액']=csvfile['시간대_17~21_매출_금액'].fillna(csvfile['시간대_17~21_매출_금액'].mean())
+csvfile['시간대_21~24_매출_금액']=csvfile['시간대_21~24_매출_금액'].fillna(csvfile['시간대_21~24_매출_금액'].mean())
+csvfile['남성_매출_금액']=csvfile['남성_매출_금액'].fillna(csvfile['남성_매출_금액'].mean())
+csvfile['여성_매출_금액']=csvfile['여성_매출_금액'].fillna(csvfile['여성_매출_금액'].mean())
+csvfile['연령대_10_매출_금액']=csvfile['연령대_10_매출_금액'].fillna(csvfile['연령대_10_매출_금액'].mean())
+csvfile['연령대_20_매출_금액']=csvfile['연령대_20_매출_금액'].fillna(csvfile['연령대_20_매출_금액'].mean())
+csvfile['연령대_30_매출_금액']=csvfile['연령대_30_매출_금액'].fillna(csvfile['연령대_30_매출_금액'].mean())
+csvfile['연령대_40_매출_금액']=csvfile['연령대_40_매출_금액'].fillna(csvfile['연령대_40_매출_금액'].mean())
+csvfile['연령대_50_매출_금액']=csvfile['연령대_50_매출_금액'].fillna(csvfile['연령대_50_매출_금액'].mean())
+csvfile['연령대_60_이상_매출_금액']=csvfile['연령대_60_이상_매출_금액'].fillna(csvfile['연령대_60_이상_매출_금액'].mean())
+csvfile['주중_매출_건수']=csvfile['주중_매출_건수'].fillna(csvfile['주중_매출_건수'].mean())
+csvfile['주말_매출_건수']=csvfile['주말_매출_건수'].fillna(csvfile['주말_매출_건수'].mean())
+csvfile['월요일_매출_건수']=csvfile['월요일_매출_건수'].fillna(csvfile['월요일_매출_건수'].mean())
+csvfile['화요일_매출_건수']=csvfile['화요일_매출_건수'].fillna(csvfile['화요일_매출_건수'].mean())
+csvfile['수요일_매출_건수']=csvfile['수요일_매출_건수'].fillna(csvfile['수요일_매출_건수'].mean())
+csvfile['목요일_매출_건수']=csvfile['목요일_매출_건수'].fillna(csvfile['목요일_매출_건수'].mean())
+csvfile['금요일_매출_건수']=csvfile['금요일_매출_건수'].fillna(csvfile['금요일_매출_건수'].mean())
+csvfile['토요일_매출_건수']=csvfile['토요일_매출_건수'].fillna(csvfile['토요일_매출_건수'].mean())
+csvfile['일요일_매출_건수']=csvfile['일요일_매출_건수'].fillna(csvfile['일요일_매출_건수'].mean())
+csvfile['시간대_건수~06_매출_건수']=csvfile['시간대_건수~06_매출_건수'].fillna(csvfile['시간대_건수~06_매출_건수'].mean())
+csvfile['시간대_건수~11_매출_건수']=csvfile['시간대_건수~11_매출_건수'].fillna(csvfile['시간대_건수~11_매출_건수'].mean())
+csvfile['시간대_건수~14_매출_건수']=csvfile['시간대_건수~14_매출_건수'].fillna(csvfile['시간대_건수~14_매출_건수'].mean())
+csvfile['시간대_건수~17_매출_건수']=csvfile['시간대_건수~17_매출_건수'].fillna(csvfile['시간대_건수~17_매출_건수'].mean())
+csvfile['시간대_건수~21_매출_건수']=csvfile['시간대_건수~21_매출_건수'].fillna(csvfile['시간대_건수~21_매출_건수'].mean())
+csvfile['시간대_건수~24_매출_건수']=csvfile['시간대_건수~24_매출_건수'].fillna(csvfile['시간대_건수~24_매출_건수'].mean())
+csvfile['남성_매출_건수']=csvfile['남성_매출_건수'].fillna(csvfile['남성_매출_건수'].mean())
+csvfile['여성_매출_건수']=csvfile['여성_매출_건수'].fillna(csvfile['여성_매출_건수'].mean())
+csvfile['연령대_10_매출_건수']=csvfile['연령대_10_매출_건수'].fillna(csvfile['연령대_10_매출_건수'].mean())
+csvfile['연령대_20_매출_건수']=csvfile['연령대_20_매출_건수'].fillna(csvfile['연령대_20_매출_건수'].mean())
+csvfile['연령대_30_매출_건수']=csvfile['연령대_30_매출_건수'].fillna(csvfile['연령대_30_매출_건수'].mean())
+csvfile['연령대_40_매출_건수']=csvfile['연령대_40_매출_건수'].fillna(csvfile['연령대_40_매출_건수'].mean())
+csvfile['연령대_50_매출_건수']=csvfile['연령대_50_매출_건수'].fillna(csvfile['연령대_50_매출_건수'].mean())
+csvfile['연령대_60_이상_매출_건수']=csvfile['연령대_60_이상_매출_건수'].fillna(csvfile['연령대_60_이상_매출_건수'].mean())
+
+csvfile['주말_매출_금액']=sum(csvfile['토요일_매출_금액'],csvfile['일요일_매출_금액'])
+csvfile['주중_매출_금액']=csvfile['월요일_매출_금액']+csvfile['화요일_매출_금액']+csvfile['수요일_매출_금액']+csvfile['목요일_매출_금액']+csvfile['금요일_매출_금액']
+csvfile['분기당_매출_금액']=sum(csvfile['주말_매출_금액'],csvfile['주중_매출_금액'])
+
+print(csvfile.shape) # 14504, 53
+print(csvfile.info())
+
+# csvfile['주중_매출_금액']=sum(csvfile['주중_매출_금액'],csvfile['주말_매출_금액'])
+
+#
 # csvfile=csvfile[csvfile['서비스_업종_코드_명']!='컴퓨터및주변장치판매']
 # csvfile=csvfile[csvfile['서비스_업종_코드_명']!='가전제품']
 # print(csvfile.info())

@@ -6,20 +6,35 @@ import matplotlib.pyplot as plt
 import statsmodels.api
 plt.rc('font',family='malgun gothic')
 import seaborn as sns
+sns.color_palette()
+sns.set_palette("pastel")
 import statsmodels.formula.api as smf
 
 
 #temp와 atemp는 상관관계가 높은 것 같다. 긍분산성, 다중분산성 문제가 발생할 가능성이 높다. 둘 중 하나만 사용하는것도 고려
 # 모델에 사용할 칼럼들만 가져오도록 한다.
 df=pd.read_csv("yongsan2021.csv")
-# 현재 파일에는 각 상권의 모든 점포수의 매출금액합계가 들어가있다. 점포당 매출금액을 비교하기 위해서 매출금액을 점포수만큼 나눠준다.
-df['분기당_매출_금액']=df['분기당_매출_금액']/df['점포수']
 bal= df[df['상권_구분_코드_명']=='발달상권']
 
-# print(bal.info()) # 5  31  24  39  36   30
+#===============================================================================
+# 이상치 제거
+#===============================================================================
+q1=bal['분기당_매출_금액'].quantile(0.25)
+q2=bal['분기당_매출_금액'].quantile(0.5)
+q3=bal['분기당_매출_금액'].quantile(0.75)
+iqr=q3-q1
+# print(jdf)
+
+condition=bal['분기당_매출_금액']>q3+1.5*iqr
+# print(data[condition])
+
+a=bal[condition].index
+bal.drop(a,inplace=True)
+
+# print(bal.info()) # 5,18,10,17,8,12
 # print(bal.shape) #(1165, 47) -> (1044, 47)
 
-x=bal[['일요일_매출_건수','주말_매출_건수','여성_매출_건수','시간대_건수~21_매출_건수','토요일_매출_건수']]
+x=bal[['시간대_14~17_매출_금액','수요일_매출_금액','시간대_11~14_매출_금액','월요일_매출_금액','금요일_매출_금액']]
 y=bal['분기당_매출_금액']
 
 #적절성이 만족도에 영향을 준다라는 가정하에 모델 생성(사람이 생각한거 정말로 확인하려면 p값 확인해야함)
@@ -70,8 +85,8 @@ print('잔차의 평균:', np.mean(residual))  #잔차의 평균: 1.023255704298
 #===============================================================================
 print('---선형성---') # 불만족
 #===============================================================================
-sns.regplot(pred,residual,lowess=True, line_kws={'color':'red'})
-plt.plot([pred.min(),pred.max()],[0,0],'--',color='blue')
+sns.regplot(pred,residual,lowess=True, line_kws={'color':'yellow'})
+plt.plot([pred.min(),pred.max()],[0,0],'--')
 plt.show()
 #잔차가 일정하게 분포되어있으므로 선형성 만족
 #===============================================================================
@@ -81,7 +96,7 @@ import scipy.stats as stats
 sr=stats.zscore(residual)
 (x,y),_=stats.probplot(sr)
 sns.scatterplot(x,y)
-plt.plot([-3,3],[-3,3],'--',color='yellow')
+plt.plot([-3,3],[-3,3],'--')
 plt.show()
 #찰-싹! 붙어있죠. 잔차항이 정규분포를 따름
 #shapiro도 볼 수 있다. 0.05보다 커야해요
@@ -99,7 +114,7 @@ print('---등분산성---') # 불만족
 #===============================================================================
 #오차들의 분산은 일정해야해
 sr=stats.zscore(residual)
-sns.regplot(pred,np.sqrt(abs(sr)),lowess=True, line_kws={'color':'red'})
+sns.regplot(pred,np.sqrt(abs(sr)),lowess=True,  line_kws={'color':'yellow'})
 plt.show()
 #평펴엉~합니다 등분산성 만족이에요
 #평균선을 기준으로 일정한 패턴을 보이지 않아 등분산성 만족이야

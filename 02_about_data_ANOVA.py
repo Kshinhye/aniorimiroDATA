@@ -16,10 +16,17 @@ print(df[df['상권_구분_코드_명']=='발달상권']['분기당_매출_금�
 print(df[df['상권_구분_코드_명']=='전통시장']['분기당_매출_금액'].mean()) #  43656244
 print(df[df['상권_구분_코드_명']=='관광특구']['분기당_매출_금액'].mean()) # 139787023
 
+mean=df.groupby(['상권_구분_코드_명']).mean()['분기당_매출_금액']
+
 import seaborn as sns
 import matplotlib.pyplot as plt
 plt.rc('font', family='malgun gothic')  #한글깨짐 방지
+sns.color_palette()
+sns.set_palette("RdBu", 10)
 
+sns.barplot(y=mean.index,x=mean)
+plt.xticks(size=10)
+plt.show()
 # 범주형을 연속형으로 바꾼다.
 df['상권_구분_코드_명']=df['상권_구분_코드_명'].map({'골목상권':3,'발달상권':2,'관광특구':1, '전통시장':0 })
 # print(df['상권_구분_코드_명'].unique()) #[3 2 0 1]
@@ -64,6 +71,15 @@ print(stats.levene(GM,BD,GG,JT).pvalue)  # 0.0018485609049856873
 # 크루스칼 왈리스
 print(stats.kruskal(GM,BD,GG,JT))
 # KruskalResult(statistic=120.9579320542866, pvalue=4.7986931524027327e-26)
+
+#pip install pingouin
+from pingouin import welch_anova
+print(welch_anova(data=df, dv='분기당_매출_금액', between='상권_구분_코드_명'))
+#        Source  ddof1        ddof2          F         p-unc       np2
+# 0  상권_구분_코드_명      3  2019.785223  29.785171  7.703434e-19  0.011599
+#                     df        sum_sq       mean_sq          F        PR(>F)
+# C(상권_구분_코드_명)      3.0  5.046663e+18  1.682221e+18  56.718359  1.922155e-36
+
 
 from statsmodels.stats.anova import anova_lm
 from statsmodels.formula.api import ols
