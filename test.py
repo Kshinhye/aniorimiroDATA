@@ -14,31 +14,43 @@ bal=pd.read_csv("https://raw.githubusercontent.com/Kshinhye/aniorimiroDATA/maste
 # smallBusiType="한식음식점"
 
 def predx(tradingArea,smallBusiType):
+    #골목/발달/전통/관광 
     sang = bal[bal['상권_코드_명']==tradingArea]
+    # 선택한 업종이 있으면 데이터를 불러오고 없으면 0을 리턴한다.
     if smallBusiType in list(sang['서비스_업종_코드_명']):
+        # 선택한 서비스업종의 행들만 불러온다.
         service = sang[sang['서비스_업종_코드_명']==smallBusiType]
-        
+        # 분기별 평균을 구한다.
         xdata=service.groupby(service['기준_분기_코드']).mean()
+        # 예측값에 넣을 변수들만 담기위해 빈 데이터 프레임을 만들어준다.
         predictdata=pd.DataFrame()
+        # 산정이 안된 분기가 있을 경우 길이를 모르기때문에 index를 돈다.
         for i in xdata.index:
             print(i)
+            # 0부터 시작하기때문에 -1을 해준다.
             df = pd.DataFrame({'월요일_매출_금액':xdata['월요일_매출_금액'].iloc[i-1],
                               '토요일_매출_금액':xdata['토요일_매출_금액'].iloc[i-1],
                               '일요일_매출_금액':xdata['일요일_매출_금액'].iloc[i-1],
                               '월요일_매출_건수':xdata['월요일_매출_건수'].iloc[i-1],
                               '토요일_매출_건수':xdata['토요일_매출_건수'].iloc[i-1],
                               '일요일_매출_건수':xdata['일요일_매출_건수'].iloc[i-1]},index = [str(i)+'분기'])
+            
+            # 위 행들을 준비해둔 데이터 프레임에 담아준다.
             predictdata=pd.concat([predictdata,df])
+            # 계속돈다.
             i+1
             
-        rdata=pd.DataFrame()
-        print(service['기준_년_코드'])
+        s19=service[service['기준_년_코드']==2019]
+        s20=service[service['기준_년_코드']==2020]
+        s21=service[service['기준_년_코드']==2021]
         
-        return predictdata
+        return predictdata,s19,s20,s21
     else:
         return 0
-predictdata=predx("신용산역(용산역)","중식음식점")
-print(predictdata)
+data=predx("신용산역(용산역)","중식음식점")
+print(data[1])
+print(data[1]['점포수'].tolist())
+print((data[1][['남성_매출_비율','여성_매출_비율']].values()).tolist())
 # # 점포수
 # jum_2021_4 = list(bal_4[bal_4['기준_년_코드']=='2021-4']['점포수'])
 # # 남녀 매출
