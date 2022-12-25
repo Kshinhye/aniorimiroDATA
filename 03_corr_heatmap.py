@@ -50,7 +50,7 @@ plt.show()
 cul= df[df['상권_구분_코드_명']=='관광특구']
 # print(cul)
 print("관광특구 분기당매출금액 상관계수 \n", cul.corr()['분기당_매출_금액'].sort_values(ascending=False))
-cul_corr=cul[['분기당_매출_금액','남성_매출_금액','금요일_매출_금액','시간대_14~17_매출_금액','화요일_매출_금액','시간대_17~21_매출_금액']]
+cul_corr=cul[['분기당_매출_금액','남성_매출_금액','연령대_40_매출_금액','시간대_14~17_매출_금액','화요일_매출_금액','시간대_17~21_매출_금액']]
 plt.figure(figsize=(10,10))
 sns.heatmap(data = cul_corr.corr(), annot=True, fmt = '.2f', linewidths=.5, cmap='Blues')
 plt.show()

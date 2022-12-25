@@ -1,74 +1,270 @@
 import pandas as pd
-from sklearn.metrics._regression import r2_score
-from sklearn.preprocessing._polynomial import PolynomialFeatures
-pd.set_option('display.max_columns', None) 
-pd.set_option('display.max_rows', None)
-pd.options.display.float_format = '{:.3f}'.format # 지수표현식이 보기 불편할 때
-# import tensorflow as tf
-# from keras import layers, models
-# from keras.models import Sequential
-# from keras.layers import Dense
+import numpy as np
+# import warnings
+# warnings.filterwarnings(action='ignore')# 경고출력안하기
+import scipy.stats as stats
+# from sklearn.preprocessing import LabelEncoder   
+import statsmodels.formula.api as smf
 
-# 모델에 사용할 칼럼들만 가져오도록 한다.
-df=pd.read_csv("yongsan2021.csv")
-# 현재 파일에는 각 상권의 모든 점포수의 매출금액합계가 들어가있다. 점포당 매출금액을 비교하기 위해서 매출금액을 점포수만큼 나눠준다.
-df['분기당_매출_금액']=df['분기당_매출_금액']/df['점포수']
-gol= df[df['상권_구분_코드_명']=='골목상권']
-# print(gol.info())
-# print(gol.shape) #(2809, 9)
-x=gol[['주중_매출_금액','시간대_06~11_매출_금액','시간대_11~14_매출_금액','시간대_14~17_매출_금액','남성_매출_금액','연령대_40_매출_금액']].squeeze()
-y=gol['분기당_매출_금액']
-x=x.astype('float')
-print(x.info())
-# poly_features = PolynomialFeatures(degree=2, include_bias=False)
-# x = poly_features.fit_transform(x)
-
-#===============================================================================
-# 이상치 제거
-#===============================================================================
-q1=gol['분기당_매출_금액'].quantile(0.25)
-q2=gol['분기당_매출_금액'].quantile(0.5)
-q3=gol['분기당_매출_금액'].quantile(0.75)
-iqr=q3-q1
-# print(iqr)
-
-condition=gol['분기당_매출_금액']>q3+1.5*iqr
-# print(data[condition])
-
-a=gol[condition].index #480 개
-gol.drop(a,inplace=True)
-print(gol.shape) #(3750, 2)
-
-# print(gol.describe())
+bal=pd.read_csv("https://raw.githubusercontent.com/Kshinhye/aniorimiroDATA/master/yongsan2021.csv", encoding='utf-8')
 
 
-# from sklearn.preprocessing import MinMaxScaler
-# scaler=MinMaxScaler(feature_range=(-1,1))
-# x=scaler.fit_transform(x)
+# BigTradingArea="전통시장"
+# tradingArea="용산용문시장"
+# smallBusiType="한식음식점"
 
-
+def predx(tradingArea,smallBusiType):
+    sang = bal[bal['상권_코드_명']==tradingArea]
+    if smallBusiType in list(sang['서비스_업종_코드_명']):
+        service = sang[sang['서비스_업종_코드_명']==smallBusiType]
+        
+        xdata=service.groupby(service['기준_분기_코드']).mean()
+        predictdata=pd.DataFrame()
+        for i in xdata.index:
+            print(i)
+            df = pd.DataFrame({'월요일_매출_금액':xdata['월요일_매출_금액'].iloc[i-1],
+                              '토요일_매출_금액':xdata['토요일_매출_금액'].iloc[i-1],
+                              '일요일_매출_금액':xdata['일요일_매출_금액'].iloc[i-1],
+                              '월요일_매출_건수':xdata['월요일_매출_건수'].iloc[i-1],
+                              '토요일_매출_건수':xdata['토요일_매출_건수'].iloc[i-1],
+                              '일요일_매출_건수':xdata['일요일_매출_건수'].iloc[i-1]},index = [str(i)+'분기'])
+            predictdata=pd.concat([predictdata,df])
+            i+1
+            
+        rdata=pd.DataFrame()
+        print(service['기준_년_코드'])
+        
+        return predictdata
+    else:
+        return 0
+predictdata=predx("신용산역(용산역)","중식음식점")
+print(predictdata)
+# # 점포수
+# jum_2021_4 = list(bal_4[bal_4['기준_년_코드']=='2021-4']['점포수'])
+# # 남녀 매출
+# gen_2021_4 = (bal_4[bal_4['기준_년_코드']=='2021-4'][['남성_매출_비율','여성_매출_비율']].values[0]).tolist()
+# # 시간대별 매출
+# time_2021_4 = (bal_4[bal_4['기준_년_코드']=='2021-4'][['시간대_00_06_매출_비율','시간대_06_11_매출_비율','시간대_11_14_매출_비율','시간대_14_17_매출_비율','시간대_17_21_매출_비율','시간대_21_24_매출_비율']].values[0]).tolist()
 
 
 
-
-
-
-
-
-
+# x=bal[['월요일_매출_금액','토요일_매출_금액','일요일_매출_금액','월요일_매출_건수','토요일_매출_건수','일요일_매출_건수']]
+# y=bal['분기당_매출_금액']
+# model =smf.ols(formula='y ~ x', data=gol).fit()
+#
+# pred1 = model.predict(pdata.iloc[0])
+# pred2 = model.predict(pdata.iloc[1])
+# pred3 = model.predict(pdata.iloc[2])
+# pred4 = model.predict(pdata.iloc[3])
+# print(pred1)
+# result1 = (pred1/ xdata['점포수'].iloc[0]).values[0] 
+# result2 = (pred2/ xdata['점포수'].iloc[1]).values[0] 
+# result3 = (pred3/ xdata['점포수'].iloc[2]).values[0] 
+# result4 = (pred4/ xdata['점포수'].iloc[3]).values[0]
 
 #
-# from sklearn.linear_model import Ridge, LinearRegression
+# # 요청을 받으면 해당 상권에 맞는 코드 실행하기
+# # 발달상권 예측모델 실행
+# if BigTradingArea == '발달상권':
+#     #발달상권
+#     print('발달상권 매출 예상')
+#     sang = bal[bal['상권_코드_명']==tradingArea]
 #
-# ridge = Ridge(alpha=10).fit(train_x, train_y)
-# print("훈련 세트 점수: {:.2f}".format(ridge.score(train_x, train_y)))
-# print("테스트 세트 점수: {:.2f}".format(ridge.score(test_x, test_y)))
+#     if smallBusiType in list(sang['서비스_업종_코드_명']):
+#         service = sang[sang['서비스_업종_코드_명']==smallBusiType] 
 #
-# lr = LinearRegression()
-# model=lr.fit(train_x, train_y)
-# print('y_new(예측값):\n', model.predict(test_x)[:5])
-# print('실제값:\n', test_y.values[:5])
-# print(r2_score(test_y,model.predict(test_x)))
-# print("훈련 세트 점수: {:.2f}".format(lr.score(train_x, train_y)))
-# print("테스트 세트 점수: {:.2f}".format(lr.score(test_x, test_y)))
-
+#         xdata=service.groupby(service['기준_분기_코드']).mean()
+#
+#         data=pd.DataFrame()
+#         for i in range(1,5):
+#             df = pd.DataFrame({'월요일_매출_금액':xdata['월요일_매출_금액'].iloc[i-1],
+#                               '토요일_매출_금액':xdata['토요일_매출_금액'].iloc[i-1],
+#                               '일요일_매출_금액':xdata['일요일_매출_금액'].iloc[i-1],
+#                               '월요일_매출_건수':xdata['월요일_매출_건수'].iloc[i-1],
+#                               '토요일_매출_건수':xdata['토요일_매출_건수'].iloc[i-1],
+#                               '일요일_매출_건수':xdata['일요일_매출_건수'].iloc[i-1]},index = [str(i)+'분기'])
+#             data=pd.concat([data,df])
+#             i+1
+#         print(data)
+#         print(data.iloc[1])
+#
+#         # 모델
+#         model_bal = smf.ols(formula = '분기당_매출_금액 ~ 월요일_매출_금액 + 토요일_매출_금액 + 일요일_매출_금액 + 월요일_매출_건수 + 토요일_매출_건수 + 일요일_매출_건수',data = service).fit()
+#
+#         pred1 = model_bal.predict(data.iloc[0])
+#         pred2 = model_bal.predict(data.iloc[1])
+#         pred3 = model_bal.predict(data.iloc[2])
+#         pred4 = model_bal.predict(data.iloc[3])
+#
+#         print('발달 실제값:',(xdata['분기당_매출_금액'].mean()) / xdata['점포수'].iloc[0])
+#         print('발달 예측값:',pred1 / xdata['점포수'].iloc[0])
+#         result1 = (pred1/ xdata['점포수'].iloc[0]).values[0] 
+#         result2 = (pred2/ xdata['점포수'].iloc[1]).values[0] 
+#         result3 = (pred3/ xdata['점포수'].iloc[2]).values[0] 
+#         result4 = (pred4/ xdata['점포수'].iloc[3]).values[0]
+#
+#         print(model_bal.summary())
+#     else : 
+#         result1 = 0
+#         result2 = 0
+#         result3 = 0
+#         result4 = 0
+#
+# # 관광특구 예측모델 실행
+# elif BigTradingArea == '관광특구':
+#
+#     print('관광특구 매출 예상')
+#     sang = cul[cul['상권_코드_명']==tradingArea]
+#     # 존재하지 않는 업종이 선택되어 데이터가 없다면 '데이터가 없습니다' 로 도출
+#
+#     if smallBusiType in list(sang['서비스_업종_코드_명']):
+#         service = sang[sang['서비스_업종_코드_명']==smallBusiType] 
+#
+#         xdata=service.groupby(service['기준_분기_코드']).mean()
+#
+#         data=pd.DataFrame()
+#         for i in range(1,5):
+#             df = pd.DataFrame({'월요일_매출_금액':xdata['월요일_매출_금액'].iloc[i-1],
+#                               '토요일_매출_금액':xdata['토요일_매출_금액'].iloc[i-1],
+#                               '일요일_매출_금액':xdata['일요일_매출_금액'].iloc[i-1],
+#                               '월요일_매출_건수':xdata['월요일_매출_건수'].iloc[i-1],
+#                               '토요일_매출_건수':xdata['토요일_매출_건수'].iloc[i-1],
+#                               '일요일_매출_건수':xdata['일요일_매출_건수'].iloc[i-1]},index = [str(i)+'분기'])
+#             data=pd.concat([data,df])
+#             i+1
+#         print(data)
+#         print(data.iloc[1])
+#
+#         # 모델
+#         model = smf.ols(formula = '분기당_매출_금액 ~ 월요일_매출_금액 + 토요일_매출_금액 + 일요일_매출_금액 + 월요일_매출_건수 + 토요일_매출_건수 + 일요일_매출_건수',data = service).fit()
+#
+#         pred1 = model.predict(data.iloc[0])
+#         pred2 = model.predict(data.iloc[1])
+#         pred3 = model.predict(data.iloc[2])
+#         pred4 = model.predict(data.iloc[3])
+#
+#         print('발달 실제값:',(xdata['분기당_매출_금액'].mean()) / xdata['점포수'].iloc[0])
+#         print('발달 예측값:',pred1 / xdata['점포수'].iloc[0])
+#         result1 = (pred1/ xdata['점포수'].iloc[0]).values[0] 
+#         result2 = (pred2/ xdata['점포수'].iloc[1]).values[0] 
+#         result3 = (pred3/ xdata['점포수'].iloc[2]).values[0] 
+#         result4 = (pred4/ xdata['점포수'].iloc[3]).values[0]
+#
+#         print(model.summary())
+#     else : 
+#         result1 = 0
+#         result2 = 0
+#         result3 = 0
+#         result4 = 0
+#
+# # 골목상권 예측모델 실행 
+# elif BigTradingArea == '골목상권':
+#
+#     print('골목상권 매출 예상')
+#     sang = gol[gol['상권_코드_명']==tradingArea]
+#     # 존재하지 않는 업종이 선택되어 데이터가 없다면 '데이터가 없습니다' 로 도출
+#
+#     if smallBusiType in list(sang['서비스_업종_코드_명']):
+#         service = sang[sang['서비스_업종_코드_명']==smallBusiType] 
+#
+#         xdata=service.groupby(service['기준_분기_코드']).mean()
+#
+#         data=pd.DataFrame()
+#         for i in range(1,5):
+#             df = pd.DataFrame({'월요일_매출_금액':xdata['월요일_매출_금액'].iloc[i-1],
+#                               '토요일_매출_금액':xdata['토요일_매출_금액'].iloc[i-1],
+#                               '일요일_매출_금액':xdata['일요일_매출_금액'].iloc[i-1],
+#                               '월요일_매출_건수':xdata['월요일_매출_건수'].iloc[i-1],
+#                               '토요일_매출_건수':xdata['토요일_매출_건수'].iloc[i-1],
+#                               '일요일_매출_건수':xdata['일요일_매출_건수'].iloc[i-1]},index = [str(i)+'분기'])
+#             data=pd.concat([data,df])
+#             i+1
+#         print(data)
+#         print(data.iloc[1])
+#
+#         # 모델
+#         model_bal = smf.ols(formula = '분기당_매출_금액 ~ 월요일_매출_금액 + 토요일_매출_금액 + 일요일_매출_금액 + 월요일_매출_건수 + 토요일_매출_건수 + 일요일_매출_건수',data = service).fit()
+#
+#         pred1 = model.predict(data.iloc[0])
+#         pred2 = model.predict(data.iloc[1])
+#         pred3 = model.predict(data.iloc[2])
+#         pred4 = model.predict(data.iloc[3])
+#
+#         print('발달 실제값:',(xdata['분기당_매출_금액'].mean()) / xdata['점포수'].iloc[0])
+#         print('발달 예측값:',pred1 / xdata['점포수'].iloc[0])
+#         result1 = (pred1/ xdata['점포수'].iloc[0]).values[0] 
+#         result2 = (pred2/ xdata['점포수'].iloc[1]).values[0] 
+#         result3 = (pred3/ xdata['점포수'].iloc[2]).values[0] 
+#         result4 = (pred4/ xdata['점포수'].iloc[3]).values[0]
+#
+#         print(model.summary())
+#     else : 
+#         result1 = 0
+#         result2 = 0
+#         result3 = 0
+#         result4 = 0
+#
+# # 전통시장 예측모델 실행
+# elif BigTradingArea == '전통시장':
+#
+#     print('전통시장 매출 예상')
+#     sang = jeon[jeon['상권_코드_명']==tradingArea]
+#     # 존재하지 않는 업종이 선택되어 데이터가 없다면 '데이터가 없습니다' 로 도출
+#
+#     if smallBusiType in list(sang['서비스_업종_코드_명']):
+#         service = sang[sang['서비스_업종_코드_명']==smallBusiType] 
+#
+#         xdata=service.groupby(service['기준_분기_코드']).mean()
+#
+#         data=pd.DataFrame()
+#         for i in range(1,5):
+#             df = pd.DataFrame({'월요일_매출_금액':xdata['월요일_매출_금액'].iloc[i-1],
+#                               '토요일_매출_금액':xdata['토요일_매출_금액'].iloc[i-1],
+#                               '일요일_매출_금액':xdata['일요일_매출_금액'].iloc[i-1],
+#                               '월요일_매출_건수':xdata['월요일_매출_건수'].iloc[i-1],
+#                               '토요일_매출_건수':xdata['토요일_매출_건수'].iloc[i-1],
+#                               '일요일_매출_건수':xdata['일요일_매출_건수'].iloc[i-1]},index = [str(i)+'분기'])
+#             data=pd.concat([data,df])
+#             i+1
+#         print(data)
+#         print(data.iloc[1])
+#
+#         # 모델
+#         model = smf.ols(formula = '분기당_매출_금액 ~ 월요일_매출_금액 + 토요일_매출_금액 + 일요일_매출_금액 + 월요일_매출_건수 + 토요일_매출_건수 + 일요일_매출_건수',data = service).fit()
+#
+#         pred1 = model.predict(data.iloc[0])
+#         pred2 = model.predict(data.iloc[1])
+#         pred3 = model.predict(data.iloc[2])
+#         pred4 = model.predict(data.iloc[3])
+#
+#         print('발달 실제값:',(xdata['분기당_매출_금액'].mean()) / xdata['점포수'].iloc[0])
+#         print('발달 예측값:',pred1 / xdata['점포수'].iloc[0])
+#         result1 = (pred1/ xdata['점포수'].iloc[0]).values[0] 
+#         result2 = (pred2/ xdata['점포수'].iloc[1]).values[0] 
+#         result3 = (pred3/ xdata['점포수'].iloc[2]).values[0] 
+#         result4 = (pred4/ xdata['점포수'].iloc[3]).values[0]
+#
+#         print(model.summary())
+#     else : 
+#         result1 = 0
+#         result2 = 0
+#         result3 = 0
+#         result4 = 0
+#
+#
+#
+# context = {
+#     # 'businessType':businessType,
+#     'tradingArea':tradingArea,
+#     'BigTradingArea':BigTradingArea,
+#     'smallBusiType':smallBusiType,
+#
+#     'result1':result1,
+#     'result2':result2,
+#     'result3':result3,
+#     'result4':result4,
+#
+#
+# }
+#
+# print(context)
