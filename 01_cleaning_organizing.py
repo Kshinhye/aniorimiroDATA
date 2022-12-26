@@ -109,6 +109,7 @@ print(csvfile.info())
 #
 # print(csvfile.shape) # 14504, 53
 # print(csvfile.info())
+csvfile.columns=csvfile.columns.str.replace(r'~', r'-', regex=True)
 
 csvfile.to_csv('yongsan2021_zero.csv', encoding='utf-8')
 print('용산구상권 파일 저장완료')
