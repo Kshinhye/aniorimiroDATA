@@ -30,7 +30,7 @@ condition=cul['분기당_매출_금액']>q3+1.5*iqr
 a=cul[condition].index
 cul.drop(a,inplace=True)
 
-# print(cul.info()) # 5,21,12,18, 9,19
+# print(cul.info()) # 6,36,11,18,19,29
 print(cul.shape) #(181, 47) -> (157, 47)
  
 x=cul[['남성_매출_금액','연령대_40_매출_금액','시간대_14~17_매출_금액','화요일_매출_금액','시간대_17~21_매출_금액']]
@@ -74,7 +74,7 @@ import numpy as np
 #이작업은 윤현성이 다 하는거야 작업까지 다 끝나고 직원들한테 나눠줘요 그럼 직원들은 predict만 하믄됩니다.
 #잔차 먼저 얻어줄게요
 
-df_lm=cul.iloc[:,[5,20,15,12,7,10]]
+df_lm=cul.iloc[:,[6,36,11,18,19,29]]
 
 fitted=lm.predict(df_lm) #이얏 예측값을 얻겠지
 residual=df_lm['분기당_매출_금액']-fitted #잔차
@@ -139,4 +139,6 @@ print(vifdf)
 # 4      8.244
 
 #모든 변수가 10을 넘기지 않음, 다중공선성이 발생하지 않음(다중공선성 우려 없음)
-
+#모델저장
+import pickle
+pickle.dump(lm, open('cul_model.pickle',mode='wb'))

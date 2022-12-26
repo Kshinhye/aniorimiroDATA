@@ -30,7 +30,7 @@ a=gol[condition].index #480 개
 gol.drop(a,inplace=True)
 
 # print(gol.shape) #(2809, 47) -> (2518, 47)
-# print(gol.info()) # 5 6 8 12 21 10 9
+# print(gol.info()) # 6,18,22,31,20,19
 x=gol[['월요일_매출_금액','금요일_매출_금액','남성_매출_금액','수요일_매출_금액','화요일_매출_금액']]
 y=gol['분기당_매출_금액']
 
@@ -72,7 +72,7 @@ print('---회귀분석모형의 적절성 확인 작업을 해봅시다---')
 import numpy as np
 #이작업은 윤현성이 다 하는거야 작업까지 다 끝나고 직원들한테 나눠줘요 그럼 직원들은 predict만 하믄됩니다.
 #잔차 먼저 얻어줄게요
-df_lm=gol.iloc[:,[5,6,8,12,21,10,9]]
+df_lm=gol.iloc[:,[6,18,22,31,20,19]]
 fitted=lm.predict(df_lm) #이얏 예측값을 얻겠지
 residual=df_lm['분기당_매출_금액']-fitted #잔차
 print(residual.head(3))
@@ -143,9 +143,8 @@ print(vifdf)
 #모든 변수가 10을 넘기지 않음, 다중공선성이 발생하지 않음(다중공선성 우려 없음)
 
 #모델저장
+import pickle
+pickle.dump(lm, open('gol_model.pickle',mode='wb'))
 
 
-from keras.models import load_model
-lm.save('gol_model.h5')
-del lm
 

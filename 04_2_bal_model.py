@@ -31,7 +31,7 @@ condition=bal['분기당_매출_금액']>q3+1.5*iqr
 a=bal[condition].index
 bal.drop(a,inplace=True)
 
-# print(bal.info()) # 5,18,10,17,8,12
+# print(bal.info()) # 6,11,20,27,18,22
 # print(bal.shape) #(1165, 47) -> (1044, 47)
 
 x=bal[['시간대_14~17_매출_금액','수요일_매출_금액','시간대_11~14_매출_금액','월요일_매출_금액','금요일_매출_금액']]
@@ -72,8 +72,8 @@ print(lm.summary())
 
 print('---회귀분석모형의 적절성 확인 작업을 해봅시다---')
 import numpy as np
-
-df_lm=bal.iloc[:,[5,31,24,39,36,30]]
+print(bal.info())
+df_lm=bal.iloc[:,[6,11,20,27,18,22]]
 
 pred=lm.predict(df_lm) #이얏 예측값을 얻겠지
 print('예측값: ', pred[:3])
@@ -140,3 +140,6 @@ print(vifdf)
 
 #모든 변수가 10을 넘기지 않음, 다중공선성이 발생하지 않음(다중공선성 우려 없음)
 
+#모델저장
+import pickle
+pickle.dump(lm, open('bal_model.pickle',mode='wb'))

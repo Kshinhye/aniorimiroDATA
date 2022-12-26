@@ -32,7 +32,7 @@ a=jdf[condition].index
 jdf.drop(a,inplace=True)
 
 
-print(jdf.info()) # 5  13  11  23  10  12
+print(jdf.info()) # 6,22,20,32,19,21
 print(jdf.shape) #(528, 47) -> (476, 47)
  
 x=jdf[['금요일_매출_금액','수요일_매출_금액','여성_매출_금액','화요일_매출_금액','목요일_매출_금액']]
@@ -71,7 +71,7 @@ print(lm.summary())
 # ==============================================================================
 print('---회귀분석모형의 적절성 확인 작업을 해봅시다---')
 import numpy as np
-df_lm=jdf.iloc[:,[5,13,11,23,10,12]]
+df_lm=jdf.iloc[:,[6,22,20,32,19,21]]
 
 fitted=lm.predict(df_lm) #이얏 예측값을 얻겠지
 print('예측값: ',fitted.values[:3])
@@ -140,3 +140,6 @@ print(vifdf)
 
 #모든 변수가 10을 넘기지 않음, 다중공선성이 발생하지 않음(다중공선성 우려 없음)
 
+#모델저장
+import pickle
+pickle.dump(lm, open('j_model.pickle',mode='wb'))
