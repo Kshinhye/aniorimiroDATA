@@ -42,30 +42,29 @@ lm=smf.ols(formula='y ~ x', data=gol).fit()
 print(lm.summary())
 #                             OLS Regression Results                            
 # ==============================================================================
-# Dep. Variable:                      y   R-squared:                       0.382
-# Model:                            OLS   Adj. R-squared:                  0.381
-# Method:                 Least Squares   F-statistic:                     259.0
-# Date:                Sat, 24 Dec 2022   Prob (F-statistic):          2.43e-258
-# Time:                        01:46:47   Log-Likelihood:                -44946.
-# No. Observations:                2518   AIC:                         8.991e+04
-# Df Residuals:                    2511   BIC:                         8.995e+04
-# Df Model:                           6                                         
+# Dep. Variable:                      y   R-squared:                       0.947
+# Model:                            OLS   Adj. R-squared:                  0.947
+# Method:                 Least Squares   F-statistic:                 2.875e+04
+# Date:                Mon, 26 Dec 2022   Prob (F-statistic):               0.00
+# Time:                        15:00:09   Log-Likelihood:            -1.5352e+05
+# No. Observations:                8013   AIC:                         3.071e+05
+# Df Residuals:                    8007   BIC:                         3.071e+05
+# Df Model:                           5                                         
 # Covariance Type:            nonrobust                                         
 # ==============================================================================
 #                  coef    std err          t      P>|t|      [0.025      0.975]
 # ------------------------------------------------------------------------------
-# Intercept   1.139e+07   3.23e+05     35.305      0.000    1.08e+07     1.2e+07
-# x[0]          -0.0078      0.006     -1.398      0.162      -0.019       0.003
-# x[1]           0.2010      0.013     15.430      0.000       0.175       0.227
-# x[2]          -0.0169      0.008     -2.246      0.025      -0.032      -0.002
-# x[3]           0.0720      0.006     11.520      0.000       0.060       0.084
-# x[4]           0.0271      0.006      4.209      0.000       0.014       0.040
-# x[5]           0.0413      0.013      3.222      0.001       0.016       0.066
+# Intercept   4.358e+16   7.67e+05   5.68e+10      0.000    4.36e+16    4.36e+16
+# x[0]           1.0756      0.010    108.951      0.000       1.056       1.095
+# x[1]           1.1586      0.011    109.698      0.000       1.138       1.179
+# x[2]           0.0907      0.005     19.716      0.000       0.082       0.100
+# x[3]           1.1684      0.011    106.581      0.000       1.147       1.190
+# x[4]           1.1356      0.011    106.336      0.000       1.115       1.157
 # ==============================================================================
-# Omnibus:                      539.591   Durbin-Watson:                   1.834
-# Prob(Omnibus):                  0.000   Jarque-Bera (JB):             1389.496
-# Skew:                           1.148   Prob(JB):                    1.88e-302
-# Kurtosis:                       5.824   Cond. No.                     4.50e+08
+# Omnibus:                     4140.893   Durbin-Watson:                   2.082
+# Prob(Omnibus):                  0.000   Jarque-Bera (JB):            33445.629
+# Skew:                           2.357   Prob(JB):                         0.00
+# Kurtosis:                      11.829   Cond. No.                     2.81e+08
 # ==============================================================================
 
 print('---회귀분석모형의 적절성 확인 작업을 해봅시다---')
@@ -143,8 +142,8 @@ print(vifdf)
 #모든 변수가 10을 넘기지 않음, 다중공선성이 발생하지 않음(다중공선성 우려 없음)
 
 #모델저장
-import pickle
-pickle.dump(lm, open('gol_model.pickle',mode='wb'))
+# import pickle
+# pickle.dump(lm, open('gol_model.pickle',mode='wb'))
 
 
 

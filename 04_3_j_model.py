@@ -48,8 +48,8 @@ print(lm.summary())
 # Dep. Variable:                      y   R-squared:                       0.964
 # Model:                            OLS   Adj. R-squared:                  0.964
 # Method:                 Least Squares   F-statistic:                     7792.
-# Date:                Sun, 25 Dec 2022   Prob (F-statistic):               0.00
-# Time:                        13:31:42   Log-Likelihood:                -27968.
+# Date:                Mon, 26 Dec 2022   Prob (F-statistic):               0.00
+# Time:                        15:04:06   Log-Likelihood:                -27968.
 # No. Observations:                1453   AIC:                         5.595e+04
 # Df Residuals:                    1447   BIC:                         5.598e+04
 # Df Model:                           5                                         
@@ -69,6 +69,7 @@ print(lm.summary())
 # Skew:                           2.295   Prob(JB):                         0.00
 # Kurtosis:                      14.149   Cond. No.                     3.34e+08
 # ==============================================================================
+
 print('---회귀분석모형의 적절성 확인 작업을 해봅시다---')
 import numpy as np
 df_lm=jdf.iloc[:,[6,22,20,32,19,21]]
