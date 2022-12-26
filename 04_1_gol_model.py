@@ -9,6 +9,8 @@ import seaborn as sns
 sns.color_palette()
 sns.set_palette("pastel")
 import statsmodels.formula.api as smf
+# import tensorflow.compat.v2 as tf
+import tensorflow as tf
 
 df=pd.read_csv("yongsan2021.csv")
 gol= df[df['상권_구분_코드_명']=='골목상권']
@@ -141,7 +143,9 @@ print(vifdf)
 #모든 변수가 10을 넘기지 않음, 다중공선성이 발생하지 않음(다중공선성 우려 없음)
 
 #모델저장
-import pickle
-pickle.dump(lm, open('gol_model.sav', mode='wb'))
+
+
+from keras.models import load_model
+lm.save('gol_model.h5')
 del lm
 
