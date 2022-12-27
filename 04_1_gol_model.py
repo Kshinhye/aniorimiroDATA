@@ -3,17 +3,15 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 pd.options.display.float_format = '{:.3f}'.format # 지수표현식이 보기 불편할 때
 import matplotlib.pyplot as plt
-import statsmodels.api
 plt.rc('font',family='malgun gothic')
 import seaborn as sns
 sns.color_palette()
 sns.set_palette("pastel")
-import statsmodels.formula.api as smf
-# import tensorflow.compat.v2 as tf
-import tensorflow as tf
 
 df=pd.read_csv("yongsan2021.csv")
 gol= df[df['상권_구분_코드_명']=='골목상권']
+# print(gol.shape) #(8792, 64)
+
 #===============================================================================
 # 이상치 제거
 #===============================================================================
@@ -21,76 +19,68 @@ q1=gol['분기당_매출_금액'].quantile(0.25)
 q2=gol['분기당_매출_금액'].quantile(0.5)
 q3=gol['분기당_매출_금액'].quantile(0.75)
 iqr=q3-q1
-# print(iqr)
-
+print(iqr)
 condition=gol['분기당_매출_금액']>q3+1.5*iqr
-# print(data[condition])
-
-a=gol[condition].index #480 개
+a=gol[condition].index
 gol.drop(a,inplace=True)
 
-# print(gol.shape) #(2809, 47) -> (2518, 47)
-# print(gol.info()) # 6,18,22,31,20,19
+# print(gol.shape) #(7769, 64))
+# print(gol.info())
 x=gol[['월요일_매출_금액','금요일_매출_금액','남성_매출_금액','수요일_매출_금액','화요일_매출_금액']]
 y=gol['분기당_매출_금액']
 
-
-#적절성이 만족도에 영향을 준다라는 가정하에 모델 생성(사람이 생각한거 정말로 확인하려면 p값 확인해야함)
 
 import statsmodels.formula.api as smf
 lm=smf.ols(formula='y ~ x', data=gol).fit()
 print(lm.summary())
 #                             OLS Regression Results                            
 # ==============================================================================
-# Dep. Variable:                      y   R-squared:                       0.947
-# Model:                            OLS   Adj. R-squared:                  0.947
-# Method:                 Least Squares   F-statistic:                 2.875e+04
-# Date:                Mon, 26 Dec 2022   Prob (F-statistic):               0.00
-# Time:                        15:00:09   Log-Likelihood:            -1.5352e+05
-# No. Observations:                8013   AIC:                         3.071e+05
-# Df Residuals:                    8007   BIC:                         3.071e+05
+# Dep. Variable:                      y   R-squared:                       0.955
+# Model:                            OLS   Adj. R-squared:                  0.955
+# Method:                 Least Squares   F-statistic:                 3.315e+04
+# Date:                                   Prob (F-statistic):               0.00
+# Time:                                   Log-Likelihood:            -1.4485e+05
+# No. Observations:                7769   AIC:                         2.897e+05
+# Df Residuals:                    7763   BIC:                         2.898e+05
 # Df Model:                           5                                         
 # Covariance Type:            nonrobust                                         
 # ==============================================================================
 #                  coef    std err          t      P>|t|      [0.025      0.975]
 # ------------------------------------------------------------------------------
-# Intercept   4.358e+16   7.67e+05   5.68e+10      0.000    4.36e+16    4.36e+16
-# x[0]           1.0756      0.010    108.951      0.000       1.056       1.095
-# x[1]           1.1586      0.011    109.698      0.000       1.138       1.179
-# x[2]           0.0907      0.005     19.716      0.000       0.082       0.100
-# x[3]           1.1684      0.011    106.581      0.000       1.147       1.190
-# x[4]           1.1356      0.011    106.336      0.000       1.115       1.157
+# Intercept   4.312e+06   4.48e+05      9.630      0.000    3.43e+06    5.19e+06
+# x[0]           0.8624      0.021     41.949      0.000       0.822       0.903
+# x[1]           1.6876      0.025     66.500      0.000       1.638       1.737
+# x[2]           0.4906      0.010     49.639      0.000       0.471       0.510
+# x[3]           1.0679      0.022     47.888      0.000       1.024       1.112
+# x[4]           1.1860      0.024     49.474      0.000       1.139       1.233
 # ==============================================================================
-# Omnibus:                     4140.893   Durbin-Watson:                   2.082
-# Prob(Omnibus):                  0.000   Jarque-Bera (JB):            33445.629
-# Skew:                           2.357   Prob(JB):                         0.00
-# Kurtosis:                      11.829   Cond. No.                     2.81e+08
+# Omnibus:                     2064.912   Durbin-Watson:                   1.816
+# Prob(Omnibus):                  0.000   Jarque-Bera (JB):           147964.876
+# Skew:                           0.298   Prob(JB):                         0.00
+# Kurtosis:                      24.371   Cond. No.                     1.37e+08
 # ==============================================================================
 
-print('---회귀분석모형의 적절성 확인 작업을 해봅시다---')
+print('---회귀분석모형의 적절성---')
 import numpy as np
-#이작업은 윤현성이 다 하는거야 작업까지 다 끝나고 직원들한테 나눠줘요 그럼 직원들은 predict만 하믄됩니다.
-#잔차 먼저 얻어줄게요
-df_lm=gol.iloc[:,[6,18,22,31,20,19]]
-fitted=lm.predict(df_lm) #이얏 예측값을 얻겠지
-residual=df_lm['분기당_매출_금액']-fitted #잔차
+# 잔차확인
+fitted=lm.predict(x) #이얏 예측값을 얻겠지
+residual=y-fitted #잔차
 print(residual.head(3))
 print('잔차의 평균:', np.mean(residual)) 
-# 잔차의 평균: -6.983069979642667e-09
-
+# 잔차의 평균: -1.146673987402482e-07
 
 print('예측값: ',fitted.values[:3])
 print('실제값: ', y.values[:3])
 
 #===============================================================================
-print('---선형성---') # 불만족
+print('---선형성---') 
 #===============================================================================
 sns.regplot(fitted,residual,lowess=True, line_kws={'color':'yellow'})
 plt.plot([fitted.min(),fitted.max()],[0,0],'--')
 plt.show()
 
 #===============================================================================
-print('---정규성---') # 불만족
+print('---정규성---')
 #===============================================================================
 import scipy.stats as stats
 sr=stats.zscore(residual)
@@ -98,11 +88,11 @@ sr=stats.zscore(residual)
 sns.scatterplot(x,y)
 plt.plot([-3,3],[-3,3],'--')
 plt.show()
-#찰-싹! 붙어있죠. 잔차항이 정규분포를 따름
-#shapiro도 볼 수 있다. 0.05보다 커야해요
+
+#shapiro 0.05보다 커야한다.
 print('shapito test: ',stats.shapiro(residual))
-# ShapiroResult(statistic=0.8159801959991455, pvalue=0.0)
-# pvalue=0.0 얘만 관심있다. < 0.05 정규성불만족
+# ShapiroResult(statistic=0.7443183064460754, pvalue=0.0)
+# pvalue=0.0 < 0.05 정규성불만족(?)
 
 #===============================================================================
 print('---독립성---')
@@ -110,35 +100,32 @@ print('---독립성---')
 #Durbin-Watson:1.834
 
 #===============================================================================
-print('---등분산성---') # 불만족
+print('---등분산성---')
 #===============================================================================
-#오차들의 분산은 일정해야해
+#오차들의 분산은 일정해야해한다
 sr=stats.zscore(residual)
 sns.regplot(fitted,np.sqrt(abs(sr)),lowess=True, line_kws={'color':'red'})
 plt.show()
-#평펴엉~합니다 등분산성 만족이에요
-#평균선을 기준으로 일정한 패턴을 보이지 않아 등분산성 만족이야
+#평평하다 등분산성 만족이에요
+#평균선을 기준으로 일정한 패턴을 보이지 않으면 등분산성을 만족한다.
 
 #===============================================================================
 print('---다중공선성---')
 #===============================================================================
 from statsmodels.stats.outliers_influence import variance_inflation_factor
-df2=gol[['월요일_매출_금액','금요일_매출_금액','남성_매출_금액','수요일_매출_금액','화요일_매출_금액']]
-# print(df2.head(2))
-# print(df2.shape) #(2809, 6)
-#분산팽창계수를 사용하도록 할게요
+
+#분산팽창계수를 사용
 vifdf=pd.DataFrame()
-vifdf['vif_value']=[variance_inflation_factor(df2.values,i) for i in range(df2.shape[1])]
+vifdf['vif_value']=[variance_inflation_factor(x.values,i) for i in range(x.shape[1])]
 print(vifdf)
 
 # ---다중공선성---
 #    vif_value
-# 0      1.744
-# 1      2.014
-# 2      2.181
-# 3      1.926
-# 4      1.878
-
+# 0      3.453
+# 1      5.629
+# 2      0.831
+# 3      4.157
+# 4      4.550
 #모든 변수가 10을 넘기지 않음, 다중공선성이 발생하지 않음(다중공선성 우려 없음)
 
 #모델저장
